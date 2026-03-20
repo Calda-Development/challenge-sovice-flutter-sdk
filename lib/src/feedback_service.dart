@@ -14,7 +14,13 @@ class FeedbackService {
       ..fields['projectId'] = config.projectId
       ..fields['title'] = report.title
       ..fields['description'] = report.description
-      ..fields['tags'] = report.type.tag;
+      ..fields['tags'] = report.type.tag
+      ..fields['platform'] = report.platform.tag
+      ..fields['environment'] = report.environment.tag;
+
+    if (report.version != null) {
+      request.fields['version'] = report.version!;
+    }
 
     if (report.screenshot != null) {
       request.files.add(

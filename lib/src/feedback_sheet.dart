@@ -39,7 +39,7 @@ class FeedbackSheet extends StatefulWidget {
 }
 
 class _FeedbackSheetState extends State<FeedbackSheet> {
-  FeedbackType _type = FeedbackType.data;
+  FeedbackType _type = FeedbackType.bug;
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   bool _includeScreenshot = true;
@@ -78,6 +78,7 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
         title: _titleController.text.trim(),
         description: _descController.text.trim(),
         screenshot: _includeScreenshot ? _screenshot : null,
+        version: widget.config.version,
       );
 
       await FeedbackService.submit(report, widget.config);

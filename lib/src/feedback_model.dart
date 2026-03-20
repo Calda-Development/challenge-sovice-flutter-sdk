@@ -1,17 +1,18 @@
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 enum FeedbackType {
-  data,
-  visual,
+  bug,
+  improvement,
   other;
 
   String get label {
     switch (this) {
-      case FeedbackType.data:
-        return 'Data';
-      case FeedbackType.visual:
-        return 'Visual';
+      case FeedbackType.bug:
+        return 'Bug';
+      case FeedbackType.improvement:
+        return 'Improvement';
       case FeedbackType.other:
         return 'Other';
     }
@@ -19,10 +20,10 @@ enum FeedbackType {
 
   String get tag {
     switch (this) {
-      case FeedbackType.data:
-        return 'Data';
-      case FeedbackType.visual:
-        return 'Visual';
+      case FeedbackType.bug:
+        return 'Bug';
+      case FeedbackType.improvement:
+        return 'Improvement';
       case FeedbackType.other:
         return 'Other';
     }
@@ -30,13 +31,68 @@ enum FeedbackType {
 
   IconData get icon {
     switch (this) {
-      case FeedbackType.data:
-        return Icons.storage_outlined;
-      case FeedbackType.visual:
-        return Icons.palette_outlined;
+      case FeedbackType.bug:
+        return Icons.bug_report_outlined;
+      case FeedbackType.improvement:
+        return Icons.lightbulb_outline;
       case FeedbackType.other:
         return Icons.chat_bubble_outline;
     }
+  }
+}
+
+enum CaldaPlatform {
+  ios,
+  android,
+  web,
+  other;
+
+  String get tag {
+    switch (this) {
+      case CaldaPlatform.ios:
+        return 'iOS';
+      case CaldaPlatform.android:
+        return 'Android';
+      case CaldaPlatform.web:
+        return 'Web';
+      case CaldaPlatform.other:
+        return 'Other';
+    }
+  }
+
+  static CaldaPlatform get current {
+    if (kIsWeb) return CaldaPlatform.web;
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.iOS:
+        return CaldaPlatform.ios;
+      case TargetPlatform.android:
+        return CaldaPlatform.android;
+      default:
+        return CaldaPlatform.other;
+    }
+  }
+}
+
+enum CaldaEnvironment {
+  debug,
+  profile,
+  release;
+
+  String get tag {
+    switch (this) {
+      case CaldaEnvironment.debug:
+        return 'Debug';
+      case CaldaEnvironment.profile:
+        return 'Profile';
+      case CaldaEnvironment.release:
+        return 'Release';
+    }
+  }
+
+  static CaldaEnvironment get current {
+    if (kDebugMode) return CaldaEnvironment.debug;
+    if (kProfileMode) return CaldaEnvironment.profile;
+    return CaldaEnvironment.release;
   }
 }
 
@@ -45,13 +101,20 @@ class FeedbackReport {
   final String title;
   final String description;
   final Uint8List? screenshot;
+  final String? version;
+  final CaldaPlatform platform;
+  final CaldaEnvironment environment;
 
-  const FeedbackReport({
+  FeedbackReport({
     required this.type,
     required this.title,
     required this.description,
     this.screenshot,
-  });
+    this.version,
+    CaldaPlatform? platform,
+    CaldaEnvironment? environment,
+  })  : platform = platform ?? CaldaPlatform.current,
+        environment = environment ?? CaldaEnvironment.current;
 }
 
 /// Where the floating feedback button is anchored by default.
@@ -77,51 +140,23 @@ enum CaldaButtonStyle {
 /// Pass an instance to [CaldaFeedback.initialize]. All fields except
 /// [projectId], [apiUrl], and [apiKey] are optional and have sensible defaults.
 class CaldaFeedbackConfig {
-  /// Your Calda project UUID from the projects table.
   final String projectId;
-
-  /// Full URL of the ticket submission endpoint, e.g.
-  /// `https://<ref>.supabase.co/functions/v1/submit-ticket`.
   final String apiUrl;
-
-  /// Bearer token sent in the `Authorization` header when calling [apiUrl].
   final String apiKey;
-
-  /// Accent color used for the floating button and interactive UI elements.
+  final String? version;
   final Color buttonColor;
-
-  /// Visual style of the floating button.
-  ///
-  /// [CaldaButtonStyle.pill] shows a pill-shaped button with an icon and
-  /// [buttonLabel]. [CaldaButtonStyle.fab] shows a compact circular button
-  /// with the Calda logo.
   final CaldaButtonStyle buttonStyle;
-
-  /// Label shown on the pill-style button.
-  ///
-  /// Only used when [buttonStyle] is [CaldaButtonStyle.pill].
-  /// Defaults to `'REPORT A BUG'`.
   final String buttonLabel;
-
-  /// Whether to automatically capture a screenshot when the user opens the
-  /// feedback sheet.
   final bool captureScreenshot;
-
-  /// Initial anchor position of the floating button.
   final CaldaButtonPosition buttonPosition;
-
-  /// When `true` the user can drag the floating button to any position on
-  /// screen. It snaps to the nearest horizontal edge when released.
   final bool buttonMovable;
-
-  /// Set to `false` to hide the floating button entirely. In this mode you
-  /// must call [CaldaFeedback.open] programmatically to show the sheet.
   final bool showButton;
 
   const CaldaFeedbackConfig({
     required this.projectId,
     required this.apiUrl,
     required this.apiKey,
+    this.version,
     this.buttonColor = const Color(0xFFFF3D00),
     this.buttonStyle = CaldaButtonStyle.pill,
     this.buttonLabel = 'REPORT A BUG',
