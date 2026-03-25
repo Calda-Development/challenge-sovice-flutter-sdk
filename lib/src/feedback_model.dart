@@ -74,12 +74,18 @@ enum CaldaPlatform {
 }
 
 enum CaldaEnvironment {
+  staging,
+  production,
   debug,
   profile,
   release;
 
   String get tag {
     switch (this) {
+      case CaldaEnvironment.staging:
+        return 'Staging';
+      case CaldaEnvironment.production:
+        return 'Production';
       case CaldaEnvironment.debug:
         return 'Debug';
       case CaldaEnvironment.profile:
