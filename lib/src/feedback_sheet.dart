@@ -78,7 +78,9 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
         title: _titleController.text.trim(),
         description: _descController.text.trim(),
         screenshot: _includeScreenshot ? _screenshot : null,
+        environment: widget.config.environment ?? CaldaEnvironment.current,
         version: widget.config.version,
+        platform: widget.config.platform ?? CaldaPlatform.current,
       );
 
       await FeedbackService.submit(report, widget.config);

@@ -144,6 +144,8 @@ class CaldaFeedbackConfig {
   final String apiUrl;
   final String apiKey;
   final String? version;
+  final CaldaPlatform? platform;
+  final CaldaEnvironment? environment;
   final Color buttonColor;
   final CaldaButtonStyle buttonStyle;
   final String buttonLabel;
@@ -157,6 +159,8 @@ class CaldaFeedbackConfig {
     required this.apiUrl,
     required this.apiKey,
     this.version,
+    this.platform,
+    this.environment,
     this.buttonColor = const Color(0xFFFF3D00),
     this.buttonStyle = CaldaButtonStyle.pill,
     this.buttonLabel = 'REPORT A BUG',
